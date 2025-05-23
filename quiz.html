@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>교사용 스트레스 자가진단</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fdf6f9;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #c94f7c;
+    }
+    .question-container {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #fff0f5;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .emoji {
+      font-size: 48px;
+      margin-top: 10px;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #c94f7c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>교사용 스트레스 자가진단</h1>
+  <form id="stressForm">
+    <div id="questions"></div>
+    <div class="result" id="result" style="display:none"></div>
+  </form>
+
+  <script>
+    const questions = [
+      "나는 출근을 생각할 때 피로감이나 부담감이 먼저 느껴진다.",
+      "수업 도중에도 집중이 잘 되지 않거나 무기력함을 느낀다.",
+      "업무가 끝난 후에도 일 생각에서 벗어나기 어렵다.",
+      "학생이나 학부모의 반응이 나에게 과도하게 스트레스를 준다.",
+      "나는 요즘 교사로서의 열정이나 사명감을 잃어가고 있다고 느낀다.",
+      "최근 내 감정 기복이 심해졌다고 느낀다.",
+      "나는 예전에 즐겁게 느끼던 수업이나 활동이 더 이상 즐겁지 않다.",
+      "동료 교사나 관리자와의 관계에서 소외감을 느낀 적이 있다.",
+      "나는 업무 외 시간에도 충분한 휴식이나 회복이 되지 않는 것 같다.",
+      "지금의 나에게는 심리적 상담이나 정서적 지원이 필요하다고 느낀다."
+    ];
+
+    const container = document.getElementById("questions");
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.classList.add("question-container");
+      if (i === 0) div.classList.add("active");
+      div.innerHTML = `<h2>질문 ${i + 1}</h2><p>${q}</p>`;
+      for (let j = 1; j <= 5; j++) {
+        div.innerHTML += `<label><input type="radio" name="q${i}" value="${j}" required> ${j}</label><br>`;
+      }
+      div.innerHTML += `<button type="button" onclick="nextQuestion(${i})">다음</button>`;
+      container.appendChild(div);
+    });
+
+    function nextQuestion(index) {
+      const selected = document.querySelector(`input[name='q${index}']:checked`);
+      if (!selected) {
+        alert("답변을 선택해 주세요.");
+        return;
+      }
+      const current = document.querySelectorAll(".question-container")[index];
+      current.classList.remove("active");
+      if (index + 1 < questions.length) {
+        document.querySelectorAll(".question-container")[index + 1].classList.add("active");
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      let total = 0;
+      for (let i = 0; i < questions.length; i++) {
+        const selected = document.querySelector(`input[name='q${i}']:checked`);
+        total += parseInt(selected.value);
+      }
+
+      const resultDiv = document.getElementById("result");
+      let message = "";
+      let emoji = "";
+
+      if (total <= 19) {
+        message = "심리적 여유가 있는 편입니다. 현재의 스트레스 수준은 관리 가능한 범위입니다.";
+        emoji = "😌";
+      } else if (total <= 29) {
+        message = "경미한 스트레스 반응이 있습니다. 충분한 휴식과 정서적 조율이 필요할 수 있습니다.";
+        emoji = "🙂";
+      } else if (total <= 39) {
+        message = "중등도 스트레스 상태입니다. 업무나 환경에 의한 정서적 탈진이 우려됩니다.";
+        emoji = "😟";
+      } else {
+        message = "고위험군입니다. 전문가 상담이 꼭 필요합니다.";
+        emoji = "😣";
+      }
+
+      resultDiv.innerHTML = `<h2>총점: ${total}점</h2><p>${message}</p><div class="emoji">${emoji}</div>`;
+      resultDiv.style.display = "block";
+      resultDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
