@@ -102,9 +102,9 @@
         const probability = prediction[i].probability.toFixed(2);
         labelContainer.childNodes[i].innerHTML = `${className}: ${probability}`;
 
-        if (className.toLowerCase() === "positive" && prediction[i].probability >= 0.5) {
+        if (className.toLowerCase() === "Positive" && prediction[i].probability >= 0.5) {
           resultText = "좋습니다.";
-        } else if (className.toLowerCase() === "negative" && prediction[i].probability >= 0.5) {
+        } else if (className.toLowerCase() === "Negative" && prediction[i].probability >= 0.5) {
           resultText = "나쁩니다.";
         }
       }
