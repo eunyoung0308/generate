@@ -40,9 +40,13 @@
       font-size: 48px;
       margin-top: 10px;
     }
+    .button-group {
+      text-align: center;
+      margin-top: 20px;
+    }
     button {
       display: inline-block;
-      margin: 20px 10px 0 10px;
+      margin: 0 10px;
       padding: 10px 20px;
       background-color: #c94f7c;
       color: white;
@@ -87,10 +91,12 @@
       for (let j = 1; j <= 5; j++) {
         div.innerHTML += `<label><input type="radio" name="q${i}" value="${j}" required> ${j}</label>`;
       }
+      div.innerHTML += '<div class="button-group">';
       if (i > 0) {
         div.innerHTML += `<button type="button" onclick="prevQuestion(${i})">이전</button>`;
       }
       div.innerHTML += `<button type="button" onclick="nextQuestion(${i})">다음</button>`;
+      div.innerHTML += '</div>';
       container.appendChild(div);
     });
 
