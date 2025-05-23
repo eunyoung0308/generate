@@ -26,20 +26,16 @@
       margin: 20px 0;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    .active {
-      display: block;
-    }
+    .active { display: block; }
     .result {
+      display: none;
       margin-top: 30px;
       padding: 20px;
       background-color: #fff0f5;
       border-radius: 10px;
       text-align: center;
     }
-    .emoji {
-      font-size: 48px;
-      margin-top: 10px;
-    }
+    .emoji { font-size: 48px; margin-top: 10px; }
     .button-group {
       display: flex;
       justify-content: center;
@@ -55,18 +51,13 @@
       cursor: pointer;
       font-size: 16px;
     }
-    label {
-      display: block;
-      margin: 5px 0;
-    }
+    label { display: block; margin: 8px 0; }
   </style>
 </head>
 <body>
   <h1>교사용 스트레스 자가진단</h1>
-  <form id="stressForm">
-    <div id="questions"></div>
-    <div class="result" id="result" style="display:none"></div>
-  </form>
+  <div id="quiz"></div>
+  <div class="result" id="result"></div>
 
   <script>
     const questions = [
@@ -79,77 +70,65 @@
       "나는 예전에 즐겁게 느끼던 수업이나 활동이 더 이상 즐겁지 않다.",
       "동료 교사나 관리자와의 관계에서 소외감을 느낀 적이 있다.",
       "나는 업무 외 시간에도 충분한 휴식이나 회복이 되지 않는 것 같다.",
-      "지금의 나에게는 심리적 상담이나 정서적 지원이 필요하다고 느낀다."
+      "지금의 나에게는 심리적 상담이나 정서적 지원이 필요하다고 느껴진다."
     ];
+    let currentIndex = 0;
+    const answers = Array(questions.length).fill(null);
 
-    const container = document.getElementById("questions");
-    questions.forEach((q, i) => {
-      const div = document.createElement("div");
-      div.classList.add("question-container");
-      if (i === 0) div.classList.add("active");
-      div.innerHTML = `<h2>질문 ${i + 1}</h2><p>${q}</p>`;
-      for (let j = 1; j <= 5; j++) {
-        div.innerHTML += `<label><input type="radio" name="q${i}" value="${j}" required> ${j}</label>`;
+    function renderQuestion(index) {
+      const container = document.getElementById('quiz');
+      container.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'question-container active';
+      div.innerHTML = `<h2>질문 ${index + 1}</h2><p>${questions[index]}</p>`;
+      for (let i = 1; i <= 5; i++) {
+        div.innerHTML += `
+          <label>
+            <input type="radio" name="answer" value="${i}" ${answers[index] === i ? 'checked' : ''}> ${i}
+          </label>`;
       }
-      div.innerHTML += '<div class="button-group">';
-      if (i > 0) {
-        div.innerHTML += `<button type="button" onclick="prevQuestion(${i})">이전</button>`;
-      }
-      div.innerHTML += `<button type="button" onclick="nextQuestion(${i})">다음</button>`;
-      div.innerHTML += '</div>';
+      div.innerHTML += `<div class="button-group">
+        <button onclick="prev()" ${index === 0 ? 'style="visibility:hidden"' : ''}>이전</button>
+        <button onclick="next()">${index === questions.length - 1 ? '결과 확인' : '다음'}</button>
+      </div>`;
       container.appendChild(div);
-    });
+    }
 
-    function nextQuestion(index) {
-      const selected = document.querySelector(`input[name='q${index}']:checked`);
-      if (!selected) {
-        alert("답변을 선택해 주세요.");
-        return;
-      }
-      const current = document.querySelectorAll(".question-container")[index];
-      current.classList.remove("active");
-      if (index + 1 < questions.length) {
-        document.querySelectorAll(".question-container")[index + 1].classList.add("active");
+    function next() {
+      const selected = document.querySelector('input[name="answer"]:checked');
+      if (!selected) { alert('답변을 선택해 주세요.'); return; }
+      answers[currentIndex] = parseInt(selected.value);
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion(currentIndex);
       } else {
         showResult();
       }
     }
 
-    function prevQuestion(index) {
-      const current = document.querySelectorAll(".question-container")[index];
-      current.classList.remove("active");
-      document.querySelectorAll(".question-container")[index - 1].classList.add("active");
+    function prev() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion(currentIndex);
+      }
     }
 
     function showResult() {
-      let total = 0;
-      for (let i = 0; i < questions.length; i++) {
-        const selected = document.querySelector(`input[name='q${i}']:checked`);
-        total += parseInt(selected.value);
-      }
-
-      const resultDiv = document.getElementById("result");
-      let message = "";
-      let emoji = "";
-
-      if (total <= 19) {
-        message = "심리적 여유가 있는 편입니다. 현재의 스트레스 수준은 관리 가능한 범위입니다.";
-        emoji = "😌";
-      } else if (total <= 29) {
-        message = "경미한 스트레스 반응이 있습니다. 충분한 휴식과 정서적 조율이 필요할 수 있습니다.";
-        emoji = "🙂";
-      } else if (total <= 39) {
-        message = "중등도 스트레스 상태입니다. 업무나 환경에 의한 정서적 탈진이 우려됩니다.";
-        emoji = "😟";
-      } else {
-        message = "고위험군입니다. 전문가 상담이 꼭 필요합니다.";
-        emoji = "😣";
-      }
-
-      resultDiv.innerHTML = `<h2>총점: ${total}점</h2><p>${message}</p><div class="emoji">${emoji}</div>`;
-      resultDiv.style.display = "block";
-      resultDiv.scrollIntoView({ behavior: 'smooth' });
+      const total = answers.reduce((sum, v) => sum + v, 0);
+      let message = '';
+      let emoji = '';
+      if (total <= 19) { message = '심리적 여유가 있는 편입니다. 현재의 스트레스 수준은 관리 가능한 범위입니다.'; emoji = '😌'; }
+      else if (total <= 29) { message = '경미한 스트레스 반응이 있습니다. 충분한 휴식과 정서적 조율이 필요할 수 있습니다.'; emoji = '🙂'; }
+      else if (total <= 39) { message = '중등도 스트레스 상태입니다. 업무나 환경에 의한 정서적 탈진이 우려됩니다.'; emoji = '😟'; }
+      else { message = '고위험군입니다. 전문가 상담이 꼭 필요합니다.'; emoji = '😣'; }
+      document.getElementById('quiz').style.display = 'none';
+      const res = document.getElementById('result');
+      res.style.display = 'block';
+      res.innerHTML = `<h2>총점: ${total}점</h2><p>${message}</p><div class='emoji'>${emoji}</div>`;
     }
+
+    // 초기 렌더링
+    renderQuestion(currentIndex);
   </script>
 </body>
 </html>
