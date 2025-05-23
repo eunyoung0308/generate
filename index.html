@@ -1,10 +1,5 @@
-<html>
-<head>
-<title>감정 인식기</title>
-</head>
-<body>
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>Teachable Machine 감정 인식</title>
@@ -14,6 +9,21 @@
       font-family: 'Arial', sans-serif;
       text-align: center;
       color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      font-size: 36px;
+      margin-top: 80px;
+      margin-bottom: 10px;
+      color: #d81b60;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      margin-bottom: 30px;
+      color: #7b1fa2;
     }
 
     button {
@@ -24,7 +34,7 @@
       color: white;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     button:hover {
@@ -52,6 +62,7 @@
 <body>
 
   <h2>Teachable Machine 감정 인식</h2>
+  <div class="subtitle">당신의 기분이 좋지 않으면 두 손으로 엑스자를 그려주세요.</div>
   <button type="button" onclick="init()">Start</button>
   <div id="webcam-container"></div>
   <div id="label-container"></div>
@@ -91,49 +102,36 @@
     }
 
     async function predict() {
-    const prediction = await model.predict(webcam.canvas);
-    let message = "";
+      const prediction = await model.predict(webcam.canvas);
+      let message = "";
 
-    // 가장 높은 확률을 가진 클래스를 찾음
-    let bestPrediction = prediction[0];
-    for (let i = 1; i < prediction.length; i++) {
+      let bestPrediction = prediction[0];
+      for (let i = 1; i < prediction.length; i++) {
         if (prediction[i].probability > bestPrediction.probability) {
-            bestPrediction = prediction[i];
+          bestPrediction = prediction[i];
         }
-    }
+      }
 
-    // 클래스별 확률 출력
-    for (let i = 0; i < prediction.length; i++) {
+      for (let i = 0; i < prediction.length; i++) {
         const classPrediction =
             prediction[i].className + ": " + prediction[i].probability.toFixed(2);
         labelContainer.childNodes[i].innerHTML = classPrediction;
-    }
+      }
 
-    // 메시지 출력 조건 개선 (대소문자, 공백 무시)
-    const label = bestPrediction.className.trim().toLowerCase();
-    const prob = bestPrediction.probability;
+      const label = bestPrediction.className.trim().toLowerCase();
+      const prob = bestPrediction.probability;
 
-    if (label.includes("positive") && prob >= 0.5) {
+      if (label.includes("positive") && prob >= 0.5) {
         message = "기분이 좋습니다.";
-    } else if (label.includes("negative") && prob >= 0.5) {
+      } else if (label.includes("negative") && prob >= 0.5) {
         message = "기분이 나쁩니다.";
-    } else {
+      } else {
         message = "";
+      }
+
+      document.getElementById("message-container").innerText = message;
+      console.log("Best class:", label, "Probability:", prob);
     }
-
-    document.getElementById("message-container").innerText = message;
-
-    // 콘솔 디버깅용 출력
-    console.log("Best class:", label, "Probability:", prob);
-}
-
   </script>
-</body>
-</html>
-
-</body>
-</html>
-
-
 </body>
 </html>
